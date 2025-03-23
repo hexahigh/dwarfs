@@ -78,7 +78,7 @@ class entry : public entry_interface {
   bool has_parent() const;
   std::shared_ptr<entry> parent() const;
   void set_name(std::string const& name);
-  std::filesystem::path fs_path() const;
+  std::filesystem::path const& fs_path() const;
   std::string path_as_string() const override;
   std::string dpath() const override;
   std::string unix_dpath() const override;
@@ -121,9 +121,7 @@ class entry : public entry_interface {
  private:
   std::u8string u8name() const;
 
-#ifdef _WIN32
   std::filesystem::path path_;
-#endif
   std::string name_;
   std::weak_ptr<entry> parent_;
   file_stat stat_;

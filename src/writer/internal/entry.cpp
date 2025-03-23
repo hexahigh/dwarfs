@@ -63,15 +63,10 @@ bool is_root_path(std::string_view path) {
 // NOLINTBEGIN(performance-unnecessary-value-param,performance-move-const-arg)
 entry::entry(fs::path const& path, std::shared_ptr<entry> parent,
              file_stat const& st)
-#ifdef _WIN32
-    : path_{parent ? path.filename() : path}
-    , name_{path_to_utf8_string_sanitized(path_)}
-#else
-    : name_{path_to_utf8_string_sanitized(parent ? path.filename() : path)}
-#endif
+    : path_{path}
+    , name_{path_to_utf8_string_sanitized(parent ? path.filename() : path)}
     , parent_{std::move(parent)}
-    , stat_{st} {
-}
+    , stat_{st} {}
 // NOLINTEND(performance-unnecessary-value-param,performance-move-const-arg)
 
 bool entry::has_parent() const { return static_cast<bool>(parent_.lock()); }
@@ -82,19 +77,7 @@ void entry::set_name(std::string const& name) { name_ = name; }
 
 std::u8string entry::u8name() const { return string_to_u8string(name_); }
 
-fs::path entry::fs_path() const {
-#ifdef _WIN32
-  fs::path self = path_;
-#else
-  fs::path self = name_;
-#endif
-
-  if (auto parent = parent_.lock()) {
-    self = parent->fs_path() / self;
-  }
-
-  return self;
-}
+fs::path const& entry::fs_path() const { return path_; }
 
 std::string entry::path_as_string() const {
   return path_to_utf8_string_sanitized(fs_path());
